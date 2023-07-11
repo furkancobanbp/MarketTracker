@@ -33,7 +33,7 @@
             this.dateKontratGun = new System.Windows.Forms.DateTimePicker();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.formsPlot1 = new ScottPlot.FormsPlot();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -81,20 +81,20 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // richTextBox1
+            // formsPlot1
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(12, 99);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(776, 339);
-            this.richTextBox1.TabIndex = 5;
-            this.richTextBox1.Text = "";
+            this.formsPlot1.Location = new System.Drawing.Point(12, 99);
+            this.formsPlot1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.formsPlot1.Name = "formsPlot1";
+            this.formsPlot1.Size = new System.Drawing.Size(775, 346);
+            this.formsPlot1.TabIndex = 5;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.formsPlot1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.dateKontratGun);
@@ -116,6 +116,6 @@
         private DateTimePicker dateKontratGun;
         private NumericUpDown numericUpDown1;
         private Button button2;
-        private RichTextBox richTextBox1;
+        private ScottPlot.FormsPlot formsPlot1;
     }
 }

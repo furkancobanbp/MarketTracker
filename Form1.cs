@@ -1,38 +1,55 @@
+
 using MarketTracker.Model;
 using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using ScottPlot;
+using ScottPlot.Plottable;
 
 namespace MarketTracker
 {
     public partial class frmMain : Form
     {
+        SignalPlot mySignalPlot;
+
         public frmMain()
         {
             InitializeComponent();
+
+            mySignalPlot = formsPlot1.Plot.AddSignal(new double[] { });
+            
+            formsPlot1.Render();
         }
         bool streamStatus = false;
         string contractName;
+
+
+        List<clsLastData> contracts = new List<clsLastData>();
+        List<double> positiveAverage = new List<double>();
+        List<double> negativeAverage = new List<double>();
+        ObservableCollection<double> rsiIndicatorSource = new ObservableCollection<double>();
+        
+
 
         DateTime selectedDate;
         System.Timers.Timer timer = new System.Timers.Timer();
         System.Timers.Timer timer2 = new System.Timers.Timer();
 
+
         private async void button1_Click(object sender, EventArgs e)
         {
-            timer.Interval = 60000;
+            timer.Interval = 45000;
             timer.Elapsed += Timer_Tick;
 
-            timer2.Interval = 2000;
+            timer2.Interval = 15000;
             timer2.Elapsed += timer2_Elapsed;
 
 
             streamStatus = true;
-            label1.Text = "Stream On.";
+            label1.Text = "Ýlk Akýþ Bekleniyor.";
             label1.ForeColor = Color.Green;
             timer.Start();
-
-
         }
         private async void Timer_Tick(object sender, EventArgs e)
         {
@@ -43,7 +60,7 @@ namespace MarketTracker
             label1.Invoke((MethodInvoker)delegate
             {
 
-                label1.Text = "Stream On";
+                label1.Text = "Akýþ Baþladý";
                 label1.ForeColor = Color.Green;
 
             });
@@ -71,11 +88,7 @@ namespace MarketTracker
                 var line = await reader.ReadLineAsync();
                 stream += line + " ";
             }
-            timer2.Stop();
-            richTextBox1.Invoke((MethodInvoker)delegate
-            {
-                richTextBox1.Text = stream;
-            });
+            timer2.Stop();           
 
             MatchCollection matches = Regex.Matches(stream, pattern);
 
@@ -86,12 +99,48 @@ namespace MarketTracker
             foreach (string data in dataArray)
             {
                 var obj = JsonConvert.DeserializeObject<clsLastData>(data);
-                dataList.Add(obj);
+                if (!(obj is null))
+                {
+                    dataList.Add(obj);
+                }
+
             }
+            if (!(dataList.Count == 0))
+            {
+                contracts.Add(dataList[dataList.Count - 1]);
+            }
+            if (contracts.Count >= 2)
+            {
+                var average = (contracts.LastOrDefault().sonFiyat - (contracts[contracts.Count - 2].sonFiyat));
 
-
+                if (average > 0)
+                {
+                    positiveAverage.Add(average);
+                }
+                else if (average < 0)
+                {
+                    average = average * -1;
+                    negativeAverage.Add(average);
+                }
+            }
+            if (positiveAverage.Count > 0 && negativeAverage.Count > 0)
+            {
+                var rs = positiveAverage.Average() / negativeAverage.Average();
+                if (rs > 0)
+                {
+                    var rsi = 100 - (100 / (1 + rs));
+                    rsiIndicatorSource.Add(rsi);
+                    
+                }
+            }
+            formsPlot1.Invoke((MethodInvoker)delegate
+            {
+                mySignalPlot = formsPlot1.Plot.AddSignal(rsiIndicatorSource.ToArray());
+                formsPlot1.Plot.AxisAuto();
+                formsPlot1.Render();
+            });
+            
         }
-
         private void timer2_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             streamStatus = !streamStatus;
@@ -99,7 +148,7 @@ namespace MarketTracker
             label1.Invoke((MethodInvoker)delegate
             {
 
-                label1.Text = "Awaiting..";
+                label1.Text = "Veri Ýþlendi. Bir Sonraki Akýþ Bekleniyor..";
                 label1.ForeColor = Color.DarkSlateBlue;
 
             });
@@ -109,9 +158,8 @@ namespace MarketTracker
         {
             label1.Text = "Stream Off";
             label1.ForeColor = Color.Red;
-
+            
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
             streamStatus = false;
