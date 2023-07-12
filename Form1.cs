@@ -18,7 +18,17 @@ namespace MarketTracker
             InitializeComponent();
 
             mySignalPlot = formsPlot1.Plot.AddSignal(new double[] { });
-            
+
+            var upperLine = formsPlot1.Plot.AddHorizontalLine(80);
+            upperLine.LineStyle = LineStyle.Solid;
+            upperLine.Color = Color.Red;
+
+            var lowerLine = formsPlot1.Plot.AddHorizontalLine(20);
+            lowerLine.LineStyle = LineStyle.Solid;
+            lowerLine.Color = Color.Red;
+
+            formsPlot1.Plot.SetAxisLimitsY(0, 100);
+
             formsPlot1.Render();
         }
         bool streamStatus = false;
@@ -29,7 +39,7 @@ namespace MarketTracker
         List<double> positiveAverage = new List<double>();
         List<double> negativeAverage = new List<double>();
         ObservableCollection<double> rsiIndicatorSource = new ObservableCollection<double>();
-        
+
 
 
         DateTime selectedDate;
@@ -39,10 +49,10 @@ namespace MarketTracker
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            timer.Interval = 45000;
+            timer.Interval = 20000;
             timer.Elapsed += Timer_Tick;
 
-            timer2.Interval = 15000;
+            timer2.Interval = 10000;
             timer2.Elapsed += timer2_Elapsed;
 
 
@@ -53,9 +63,28 @@ namespace MarketTracker
         }
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            List<clsLastData> dataList = new List<clsLastData>();
+            if (positiveAverage.Count > 10)
+            {
+                positiveAverage.RemoveAt(0);
+            }
+            if (negativeAverage.Count > 10)
+            {
+                negativeAverage.RemoveAt(0);
+            }
+
+            if (positiveAverage.Count == 10 && negativeAverage.Count == 10)
+            {
+                checkBox1.Invoke((MethodInvoker)delegate
+                {
+                    checkBox1.CheckState = CheckState.Checked;
+                });
+
+            }
+
             string stream = " ";
             streamStatus = true;
+
+            List<clsLastData> dataList = new List<clsLastData>();
 
             label1.Invoke((MethodInvoker)delegate
             {
@@ -88,7 +117,7 @@ namespace MarketTracker
                 var line = await reader.ReadLineAsync();
                 stream += line + " ";
             }
-            timer2.Stop();           
+            timer2.Stop();
 
             MatchCollection matches = Regex.Matches(stream, pattern);
 
@@ -130,16 +159,21 @@ namespace MarketTracker
                 {
                     var rsi = 100 - (100 / (1 + rs));
                     rsiIndicatorSource.Add(rsi);
-                    
+
                 }
             }
             formsPlot1.Invoke((MethodInvoker)delegate
             {
                 mySignalPlot = formsPlot1.Plot.AddSignal(rsiIndicatorSource.ToArray());
+                if (rsiIndicatorSource.Count > 0)
+                {
+                    formsPlot1.Plot.AddText($"{contracts.Last().sonFiyat}", rsiIndicatorSource.Count - 1, rsiIndicatorSource.Last());
+
+                }
                 formsPlot1.Plot.AxisAuto();
                 formsPlot1.Render();
             });
-            
+
         }
         private void timer2_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -158,7 +192,7 @@ namespace MarketTracker
         {
             label1.Text = "Stream Off";
             label1.ForeColor = Color.Red;
-            
+
         }
         private void button2_Click(object sender, EventArgs e)
         {

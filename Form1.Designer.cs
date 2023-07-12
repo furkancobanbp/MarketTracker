@@ -34,6 +34,7 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
             this.formsPlot1 = new ScottPlot.FormsPlot();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -89,11 +90,23 @@
             this.formsPlot1.Size = new System.Drawing.Size(775, 346);
             this.formsPlot1.TabIndex = 5;
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
+            this.checkBox1.Location = new System.Drawing.Point(376, 20);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(109, 19);
+            this.checkBox1.TabIndex = 6;
+            this.checkBox1.Text = "14\'e ulaşıldı mı?";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.formsPlot1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.numericUpDown1);
@@ -117,5 +130,6 @@
         private NumericUpDown numericUpDown1;
         private Button button2;
         private ScottPlot.FormsPlot formsPlot1;
+        private CheckBox checkBox1;
     }
 }
