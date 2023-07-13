@@ -35,7 +35,12 @@
             this.button2 = new System.Windows.Forms.Button();
             this.formsPlot1 = new ScottPlot.FormsPlot();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.RSI10 = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.formsPlot2 = new ScottPlot.FormsPlot();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.RSI10.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -84,10 +89,11 @@
             // 
             // formsPlot1
             // 
-            this.formsPlot1.Location = new System.Drawing.Point(12, 99);
+            this.formsPlot1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.formsPlot1.Location = new System.Drawing.Point(3, 19);
             this.formsPlot1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.formsPlot1.Name = "formsPlot1";
-            this.formsPlot1.Size = new System.Drawing.Size(775, 346);
+            this.formsPlot1.Size = new System.Drawing.Size(1054, 195);
             this.formsPlot1.TabIndex = 5;
             // 
             // checkBox1
@@ -98,16 +104,48 @@
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(109, 19);
             this.checkBox1.TabIndex = 6;
-            this.checkBox1.Text = "14\'e ulaşıldı mı?";
+            this.checkBox1.Text = "10\'a ulaşıldı mı?";
             this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // RSI10
+            // 
+            this.RSI10.Controls.Add(this.formsPlot1);
+            this.RSI10.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.RSI10.Location = new System.Drawing.Point(0, 398);
+            this.RSI10.Name = "RSI10";
+            this.RSI10.Size = new System.Drawing.Size(1060, 217);
+            this.RSI10.TabIndex = 7;
+            this.RSI10.TabStop = false;
+            this.RSI10.Text = "RSI10";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.formsPlot2);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBox1.Location = new System.Drawing.Point(0, 99);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(1060, 299);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Boolinger Bantları";
+            // 
+            // formsPlot2
+            // 
+            this.formsPlot2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.formsPlot2.Location = new System.Drawing.Point(3, 19);
+            this.formsPlot2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.formsPlot2.Name = "formsPlot2";
+            this.formsPlot2.Size = new System.Drawing.Size(1054, 277);
+            this.formsPlot2.TabIndex = 6;
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1060, 615);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.RSI10);
             this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.formsPlot1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.dateKontratGun);
@@ -117,6 +155,8 @@
             this.Text = "Main";
             this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.RSI10.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -131,5 +171,8 @@
         private Button button2;
         private ScottPlot.FormsPlot formsPlot1;
         private CheckBox checkBox1;
+        private GroupBox RSI10;
+        private GroupBox groupBox1;
+        private ScottPlot.FormsPlot formsPlot2;
     }
 }

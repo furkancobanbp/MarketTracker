@@ -6,18 +6,60 @@ using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using ScottPlot;
 using ScottPlot.Plottable;
+using MarketTracker.Functions;
 
 namespace MarketTracker
 {
     public partial class frmMain : Form
     {
         SignalPlot mySignalPlot;
+        SignalPlot mySignalPlot2;
+        SignalPlot mySignalPlot3;
+        SignalPlot mySignalPlot4;
+        SignalPlot mySignalPlot5;
 
         public frmMain()
         {
             InitializeComponent();
 
             mySignalPlot = formsPlot1.Plot.AddSignal(new double[] { });
+            mySignalPlot2 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Lower Band");
+            mySignalPlot3 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Upper Band");
+            mySignalPlot4 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Mid Band");
+            mySignalPlot5 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Son Fiyat");
+
+            mySignalPlot2.Color = Color.Red;
+            mySignalPlot3.Color = Color.Blue;
+            mySignalPlot4.Color = Color.Green;
+            mySignalPlot5.Color = Color.Orange;
+
+            formsPlot2.Plot.Legend(true);
+        }
+
+        bool streamStatus = false;
+        string contractName;
+
+
+        List<clsLastData> contracts = new List<clsLastData>();
+        List<double> positiveAverage = new List<double>();
+        List<double> negativeAverage = new List<double>();
+        ObservableCollection<double> rsiIndicatorSource = new ObservableCollection<double>();
+        boolingerItems boolingerBands = new boolingerItems();
+
+        List<double> upperBand = new List<double>();
+        List<double> lowerBand = new List<double>();
+        List<double> midBand = new List<double>();
+
+
+
+        DateTime selectedDate;
+        System.Timers.Timer timer = new System.Timers.Timer();
+        System.Timers.Timer timer2 = new System.Timers.Timer();
+
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+
 
             var upperLine = formsPlot1.Plot.AddHorizontalLine(80);
             upperLine.LineStyle = LineStyle.Solid;
@@ -30,29 +72,13 @@ namespace MarketTracker
             formsPlot1.Plot.SetAxisLimitsY(0, 100);
 
             formsPlot1.Render();
-        }
-        bool streamStatus = false;
-        string contractName;
 
+            formsPlot2.Render();
 
-        List<clsLastData> contracts = new List<clsLastData>();
-        List<double> positiveAverage = new List<double>();
-        List<double> negativeAverage = new List<double>();
-        ObservableCollection<double> rsiIndicatorSource = new ObservableCollection<double>();
-
-
-
-        DateTime selectedDate;
-        System.Timers.Timer timer = new System.Timers.Timer();
-        System.Timers.Timer timer2 = new System.Timers.Timer();
-
-
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            timer.Interval = 20000;
+            timer.Interval = 10000;
             timer.Elapsed += Timer_Tick;
 
-            timer2.Interval = 10000;
+            timer2.Interval = 5000;
             timer2.Elapsed += timer2_Elapsed;
 
 
@@ -78,7 +104,6 @@ namespace MarketTracker
                 {
                     checkBox1.CheckState = CheckState.Checked;
                 });
-
             }
 
             string stream = " ";
@@ -88,10 +113,8 @@ namespace MarketTracker
 
             label1.Invoke((MethodInvoker)delegate
             {
-
                 label1.Text = "Akýþ Baþladý";
                 label1.ForeColor = Color.Green;
-
             });
 
             selectedDate = dateKontratGun.Value;
@@ -132,7 +155,6 @@ namespace MarketTracker
                 {
                     dataList.Add(obj);
                 }
-
             }
             if (!(dataList.Count == 0))
             {
@@ -159,7 +181,6 @@ namespace MarketTracker
                 {
                     var rsi = 100 - (100 / (1 + rs));
                     rsiIndicatorSource.Add(rsi);
-
                 }
             }
             formsPlot1.Invoke((MethodInvoker)delegate
@@ -168,10 +189,36 @@ namespace MarketTracker
                 if (rsiIndicatorSource.Count > 0)
                 {
                     formsPlot1.Plot.AddText($"{contracts.Last().sonFiyat}", rsiIndicatorSource.Count - 1, rsiIndicatorSource.Last());
-
                 }
                 formsPlot1.Plot.AxisAuto();
-                formsPlot1.Render();
+                formsPlot1.Refresh();
+            });
+
+            formsPlot2.Invoke((MethodInvoker)delegate
+            {
+                var boolingerDatas = boolingerBands.boolinger(contracts);
+
+                lowerBand.Add(boolingerDatas.lowerBand);
+                upperBand.Add(boolingerDatas.upperBand);
+                midBand.Add(boolingerDatas.averagePrice);
+
+                mySignalPlot2 = formsPlot2.Plot.AddSignal(lowerBand.ToArray());
+                mySignalPlot3 = formsPlot2.Plot.AddSignal(upperBand.ToArray());
+                mySignalPlot4 = formsPlot2.Plot.AddSignal(midBand.ToArray());
+                mySignalPlot5 = formsPlot2.Plot.AddSignal(contracts.Select(x => x.sonFiyat).ToArray());
+
+                mySignalPlot2.Color = Color.Red;
+                mySignalPlot3.Color = Color.Blue;
+                mySignalPlot4.Color = Color.Green;
+                mySignalPlot5.Color = Color.Orange;
+
+                formsPlot2.Plot.AddText($"{Math.Round(lowerBand.Last(), 2)}", lowerBand.Count - 1, lowerBand.Last());
+                formsPlot2.Plot.AddText($"{Math.Round(upperBand.Last(), 2)}", upperBand.Count - 1, upperBand.Last());
+                formsPlot2.Plot.AddText($"{Math.Round(midBand.Last(), 2)}", midBand.Count - 1, midBand.Last());
+                formsPlot2.Plot.AddText($"{contracts.Select(x => x.sonFiyat).Last()}", contracts.Count - 1, contracts.Select(x => x.sonFiyat).Last());
+
+                formsPlot2.Plot.AxisAuto();
+                formsPlot2.Refresh();
             });
 
         }
@@ -181,18 +228,14 @@ namespace MarketTracker
 
             label1.Invoke((MethodInvoker)delegate
             {
-
                 label1.Text = "Veri Ýþlendi. Bir Sonraki Akýþ Bekleniyor..";
                 label1.ForeColor = Color.DarkSlateBlue;
-
             });
         }
-
         private void frmMain_Load(object sender, EventArgs e)
         {
             label1.Text = "Stream Off";
             label1.ForeColor = Color.Red;
-
         }
         private void button2_Click(object sender, EventArgs e)
         {
@@ -200,6 +243,15 @@ namespace MarketTracker
             label1.Text = "Stream Off";
             label1.ForeColor = Color.Red;
             timer.Stop();
+            negativeAverage.Clear();
+            positiveAverage.Clear();
+            contracts.Clear();
+            rsiIndicatorSource.Clear();
+            formsPlot1.Plot.Clear();
+            formsPlot2.Plot.Clear();
+            lowerBand.Clear();
+            midBand.Clear();
+            upperBand.Clear();
         }
     }
 }
