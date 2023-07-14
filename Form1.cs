@@ -39,6 +39,7 @@ namespace MarketTracker
         List<clsLastData> contracts = new List<clsLastData>();
         List<double> positiveAverage = new List<double>();
         List<double> negativeAverage = new List<double>();
+        List<double> lastPriceData = new List<double>();
         ObservableCollection<double> rsiIndicatorSource = new ObservableCollection<double>();
         boolingerItems boolingerBands = new boolingerItems();
 
@@ -93,10 +94,6 @@ namespace MarketTracker
             if (negativeAverage.Count > 20)
             {
                 negativeAverage.RemoveAt(0);
-            }
-            if (contracts.Count > 20)
-            {
-                contracts.RemoveAt(0);
             }
 
             if (positiveAverage.Count == 20 && negativeAverage.Count == 20)
@@ -160,6 +157,11 @@ namespace MarketTracker
             if (!(dataList.Count == 0))
             {
                 contracts.Add(dataList[dataList.Count - 1]);
+
+                if (contracts.Count > 20)
+                {
+                    contracts.RemoveAt(0);
+                }
             }
             if (contracts.Count >= 2)
             {
@@ -217,29 +219,31 @@ namespace MarketTracker
                 {
                     formsPlot2.Plot.Clear();
                 }
-                if (contracts.Count > 0)
+
+                if (!(dataList.Count == 0))
                 {
                     var boolingerDatas = boolingerBands.boolinger(contracts);
 
                     lowerBand.Add(boolingerDatas.lowerBand);
                     upperBand.Add(boolingerDatas.upperBand);
                     midBand.Add(boolingerDatas.averagePrice);
-
+                    lastPriceData.Add(contracts.Select(x => x.sonFiyat).Last());
                     mySignalPlot2 = formsPlot2.Plot.AddSignal(lowerBand.ToArray());
                     mySignalPlot3 = formsPlot2.Plot.AddSignal(upperBand.ToArray());
                     mySignalPlot4 = formsPlot2.Plot.AddSignal(midBand.ToArray());
-                    mySignalPlot5 = formsPlot2.Plot.AddSignal(contracts.Select(x => x.sonFiyat).ToArray());
+                    mySignalPlot5 = formsPlot2.Plot.AddSignal(lastPriceData.ToArray());
 
                     formsPlot2.Plot.AddText($"{Math.Round(lowerBand.Last(), 2)}", lowerBand.Count - 1, lowerBand.Last());
                     formsPlot2.Plot.AddText($"{Math.Round(upperBand.Last(), 2)}", upperBand.Count - 1, upperBand.Last());
                     formsPlot2.Plot.AddText($"{Math.Round(midBand.Last(), 2)}", midBand.Count - 1, midBand.Last());
-                    formsPlot2.Plot.AddText($"{contracts.Select(x => x.sonFiyat).Last()}", contracts.Count - 1, contracts.Select(x => x.sonFiyat).Last());
+                    formsPlot2.Plot.AddText($"{Math.Round(lastPriceData.Last(), 2)}", lastPriceData.Count - 1, lastPriceData.Last());
 
                     graphColor();
 
                     formsPlot2.Plot.AxisAuto();
                     formsPlot2.Refresh();
                 }
+
             });
         }
         private void timer2_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -272,6 +276,9 @@ namespace MarketTracker
             lowerBand.Clear();
             midBand.Clear();
             upperBand.Clear();
+
+            formsPlot2.Refresh();
+            formsPlot1.Refresh();
         }
         public void graphColor()
         {
