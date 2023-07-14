@@ -18,6 +18,9 @@ namespace MarketTracker
         SignalPlot mySignalPlot4;
         SignalPlot mySignalPlot5;
 
+        bool cleaner1 = true;
+        bool cleaner2 = true;
+
         public frmMain()
         {
             InitializeComponent();
@@ -28,10 +31,7 @@ namespace MarketTracker
             mySignalPlot4 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Mid Band");
             mySignalPlot5 = formsPlot2.Plot.AddSignal(new double[] { }, label: "Son Fiyat");
 
-            mySignalPlot2.Color = Color.Red;
-            mySignalPlot3.Color = Color.Blue;
-            mySignalPlot4.Color = Color.Green;
-            mySignalPlot5.Color = Color.Orange;
+            graphColor();
 
             formsPlot2.Plot.Legend(true);
         }
@@ -89,16 +89,21 @@ namespace MarketTracker
         }
         private async void Timer_Tick(object sender, EventArgs e)
         {
-            if (positiveAverage.Count > 10)
+
+            if (positiveAverage.Count > 20)
             {
                 positiveAverage.RemoveAt(0);
             }
-            if (negativeAverage.Count > 10)
+            if (negativeAverage.Count > 20)
             {
                 negativeAverage.RemoveAt(0);
             }
+            if (contracts.Count > 20)
+            {
+                contracts.RemoveAt(0);
+            }
 
-            if (positiveAverage.Count == 10 && negativeAverage.Count == 10)
+            if (positiveAverage.Count == 20 && negativeAverage.Count == 20)
             {
                 checkBox1.Invoke((MethodInvoker)delegate
                 {
@@ -183,9 +188,31 @@ namespace MarketTracker
                     rsiIndicatorSource.Add(rsi);
                 }
             }
+
             formsPlot1.Invoke((MethodInvoker)delegate
             {
+                if (rsiIndicatorSource.Count > 20)
+                {
+                    rsiIndicatorSource.RemoveAt(0);
+                    cleaner1 = false;
+                }
+
+                if (!cleaner1)
+                {
+                    formsPlot1.Plot.Clear();
+
+                    var upperLine = formsPlot1.Plot.AddHorizontalLine(80);
+                    upperLine.LineStyle = LineStyle.Solid;
+                    upperLine.Color = Color.Red;
+
+                    var lowerLine = formsPlot1.Plot.AddHorizontalLine(20);
+                    lowerLine.LineStyle = LineStyle.Solid;
+
+                    lowerLine.Color = Color.Red;
+                    cleaner1 = true;
+                }
                 mySignalPlot = formsPlot1.Plot.AddSignal(rsiIndicatorSource.ToArray());
+
                 if (rsiIndicatorSource.Count > 0)
                 {
                     formsPlot1.Plot.AddText($"{contracts.Last().sonFiyat}", rsiIndicatorSource.Count - 1, rsiIndicatorSource.Last());
@@ -196,29 +223,46 @@ namespace MarketTracker
 
             formsPlot2.Invoke((MethodInvoker)delegate
             {
-                var boolingerDatas = boolingerBands.boolinger(contracts);
+                if (lowerBand.Count > 20 && midBand.Count > 20 && upperBand.Count > 20)
+                {
+                    lowerBand.RemoveAt(0);
+                    midBand.RemoveAt(0);
+                    upperBand.RemoveAt(0);
 
-                lowerBand.Add(boolingerDatas.lowerBand);
-                upperBand.Add(boolingerDatas.upperBand);
-                midBand.Add(boolingerDatas.averagePrice);
+                    cleaner2 = false;
 
-                mySignalPlot2 = formsPlot2.Plot.AddSignal(lowerBand.ToArray());
-                mySignalPlot3 = formsPlot2.Plot.AddSignal(upperBand.ToArray());
-                mySignalPlot4 = formsPlot2.Plot.AddSignal(midBand.ToArray());
-                mySignalPlot5 = formsPlot2.Plot.AddSignal(contracts.Select(x => x.sonFiyat).ToArray());
+                    if (!cleaner2)
+                    {
+                        formsPlot2.Plot.Clear();
+                        cleaner2 = true;
+                    }
+                }
+                if (contracts.Count > 0)
+                {
+                    var boolingerDatas = boolingerBands.boolinger(contracts);
 
-                mySignalPlot2.Color = Color.Red;
-                mySignalPlot3.Color = Color.Blue;
-                mySignalPlot4.Color = Color.Green;
-                mySignalPlot5.Color = Color.Orange;
+                    lowerBand.Add(boolingerDatas.lowerBand);
+                    upperBand.Add(boolingerDatas.upperBand);
+                    midBand.Add(boolingerDatas.averagePrice);
 
-                formsPlot2.Plot.AddText($"{Math.Round(lowerBand.Last(), 2)}", lowerBand.Count - 1, lowerBand.Last());
-                formsPlot2.Plot.AddText($"{Math.Round(upperBand.Last(), 2)}", upperBand.Count - 1, upperBand.Last());
-                formsPlot2.Plot.AddText($"{Math.Round(midBand.Last(), 2)}", midBand.Count - 1, midBand.Last());
-                formsPlot2.Plot.AddText($"{contracts.Select(x => x.sonFiyat).Last()}", contracts.Count - 1, contracts.Select(x => x.sonFiyat).Last());
 
-                formsPlot2.Plot.AxisAuto();
-                formsPlot2.Refresh();
+
+                    mySignalPlot2 = formsPlot2.Plot.AddSignal(lowerBand.ToArray());
+                    mySignalPlot3 = formsPlot2.Plot.AddSignal(upperBand.ToArray());
+                    mySignalPlot4 = formsPlot2.Plot.AddSignal(midBand.ToArray());
+                    mySignalPlot5 = formsPlot2.Plot.AddSignal(contracts.Select(x => x.sonFiyat).ToArray());
+
+                    formsPlot2.Plot.AddText($"{Math.Round(lowerBand.Last(), 2)}", lowerBand.Count - 1, lowerBand.Last());
+                    formsPlot2.Plot.AddText($"{Math.Round(upperBand.Last(), 2)}", upperBand.Count - 1, upperBand.Last());
+                    formsPlot2.Plot.AddText($"{Math.Round(midBand.Last(), 2)}", midBand.Count - 1, midBand.Last());
+                    formsPlot2.Plot.AddText($"{contracts.Select(x => x.sonFiyat).Last()}", contracts.Count - 1, contracts.Select(x => x.sonFiyat).Last());
+
+                    graphColor();
+
+                    formsPlot2.Plot.AxisAuto();
+                    formsPlot2.Refresh();
+                }
+
             });
 
         }
@@ -252,6 +296,13 @@ namespace MarketTracker
             lowerBand.Clear();
             midBand.Clear();
             upperBand.Clear();
+        }
+        public void graphColor()
+        {
+            mySignalPlot2.Color = Color.Red;
+            mySignalPlot3.Color = Color.Blue;
+            mySignalPlot4.Color = Color.Green;
+            mySignalPlot5.Color = Color.Orange;
         }
     }
 }

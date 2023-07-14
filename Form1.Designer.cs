@@ -102,9 +102,9 @@
             this.checkBox1.Enabled = false;
             this.checkBox1.Location = new System.Drawing.Point(376, 20);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(109, 19);
+            this.checkBox1.Size = new System.Drawing.Size(115, 19);
             this.checkBox1.TabIndex = 6;
-            this.checkBox1.Text = "10\'a ulaşıldı mı?";
+            this.checkBox1.Text = "20\'ye ulaşıldı mı?";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // RSI10
