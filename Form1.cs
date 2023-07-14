@@ -17,10 +17,6 @@ namespace MarketTracker
         SignalPlot mySignalPlot3;
         SignalPlot mySignalPlot4;
         SignalPlot mySignalPlot5;
-
-        bool cleaner1 = true;
-        bool cleaner2 = true;
-
         public frmMain()
         {
             InitializeComponent();
@@ -191,13 +187,7 @@ namespace MarketTracker
 
             formsPlot1.Invoke((MethodInvoker)delegate
             {
-                if (rsiIndicatorSource.Count > 20)
-                {
-                    rsiIndicatorSource.RemoveAt(0);
-                    cleaner1 = false;
-                }
-
-                if (!cleaner1)
+                if (mySignalPlot.PointCount > 100)
                 {
                     formsPlot1.Plot.Clear();
 
@@ -209,8 +199,8 @@ namespace MarketTracker
                     lowerLine.LineStyle = LineStyle.Solid;
 
                     lowerLine.Color = Color.Red;
-                    cleaner1 = true;
                 }
+
                 mySignalPlot = formsPlot1.Plot.AddSignal(rsiIndicatorSource.ToArray());
 
                 if (rsiIndicatorSource.Count > 0)
@@ -223,19 +213,9 @@ namespace MarketTracker
 
             formsPlot2.Invoke((MethodInvoker)delegate
             {
-                if (lowerBand.Count > 20 && midBand.Count > 20 && upperBand.Count > 20)
+                if (mySignalPlot2.PointCount > 100 && mySignalPlot3.PointCount > 100 && mySignalPlot4.PointCount > 100 && mySignalPlot5.PointCount > 100)
                 {
-                    lowerBand.RemoveAt(0);
-                    midBand.RemoveAt(0);
-                    upperBand.RemoveAt(0);
-
-                    cleaner2 = false;
-
-                    if (!cleaner2)
-                    {
-                        formsPlot2.Plot.Clear();
-                        cleaner2 = true;
-                    }
+                    formsPlot2.Plot.Clear();
                 }
                 if (contracts.Count > 0)
                 {
@@ -244,8 +224,6 @@ namespace MarketTracker
                     lowerBand.Add(boolingerDatas.lowerBand);
                     upperBand.Add(boolingerDatas.upperBand);
                     midBand.Add(boolingerDatas.averagePrice);
-
-
 
                     mySignalPlot2 = formsPlot2.Plot.AddSignal(lowerBand.ToArray());
                     mySignalPlot3 = formsPlot2.Plot.AddSignal(upperBand.ToArray());
@@ -262,9 +240,7 @@ namespace MarketTracker
                     formsPlot2.Plot.AxisAuto();
                     formsPlot2.Refresh();
                 }
-
             });
-
         }
         private void timer2_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
